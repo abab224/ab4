@@ -1,52 +1,59 @@
-const socket = io();
-
 document.addEventListener("DOMContentLoaded", () => {
-    const username = localStorage.getItem("username");
-    const password = localStorage.getItem("password");
+    const currentPath = window.location.pathname;
 
-    if (!username || !password) {
-        alert("Please login first!");
-        window.location.href = "/";
-        return;
-    }
+    if (currentPath === "/") {
+        document.getElementById("loginForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
 
-    const roomName = document.getElementById("room-name");
-    const chatBox = document.getElementById("chat-box");
-    const messageInput = document.getElementById("message");
-    const sendBtn = document.getElementById("send-btn");
+            if (!username || !password) {
+                alert("ユーザ名とパスワードを入力してください");
+                return;
+            }
 
-    // 部屋名を表示
-    roomName.textContent = password;
+            localStorage.setItem("username", username);
+            localStorage.setItem("password", password);
+            window.location.href = "/chat.html";
+        });
+    } else if (currentPath === "/chat.html") {
+        const username = localStorage.getItem("username");
+        const password = localStorage.getItem("password");
 
-    // サーバーに参加を通知
-    socket.emit("join", { username, password });
-
-    // メッセージを送信
-    sendBtn.addEventListener("click", () => {
-        const message = messageInput.value.trim();
-        if (message) {
-            socket.emit("message", { username, message, password });
-            displayMessage("me", message);
-            messageInput.value = "";
+        if (!username || !password) {
+            alert("ログインしてください");
+            window.location.href = "/";
+            return;
         }
-    });
 
-    // 他のユーザーからのメッセージを受信
-    socket.on("message", (data) => {
-        displayMessage("you", `${data.username}: ${data.message}`);
-    });
+        const socket = io();
 
-    // システム通知
-    socket.on("system", (message) => {
-        displayMessage("system", message);
-    });
+        socket.emit("joinRoom", { username, password });
 
-    // メッセージを表示する関数
-    function displayMessage(type, text) {
-        const messageElem = document.createElement("div");
-        messageElem.classList.add("message", type);
-        messageElem.textContent = text;
-        chatBox.appendChild(messageElem);
-        chatBox.scrollTop = chatBox.scrollHeight; // 最新メッセージにスクロール
+        socket.on("joinSuccess", () => {
+            console.log("チャットに参加しました");
+        });
+
+        socket.on("joinError", (error) => {
+            alert(error);
+            window.location.href = "/";
+        });
+
+        document.getElementById("chatForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const message = document.getElementById("message").value.trim();
+            if (message) {
+                socket.emit("chatMessage", { username, message });
+                document.getElementById("message").value = "";
+            }
+        });
+
+        socket.on("message", (data) => {
+            const chatBox = document.getElementById("chatBox");
+            const newMessage = document.createElement("div");
+            newMessage.textContent = `${data.username}: ${data.message}`;
+            chatBox.appendChild(newMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
     }
 });

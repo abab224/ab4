@@ -3,22 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>チャット</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="chat-container">
-        <!-- 部屋名表示 -->
-        <div class="room-info">
-            <h2>Room: <span id="room-name"></span></h2>
-        </div>
-        <!-- メッセージ表示エリア -->
-        <div id="chat-box" class="chat-box"></div>
-        <!-- メッセージ入力エリア -->
-        <div class="message-input-container">
-            <input type="text" id="message" placeholder="Write a message..." required>
-            <button id="send-btn">▶</button>
-        </div>
+        <div id="chatBox" class="chat-box"></div>
+        <form id="chatForm">
+            <input type="text" id="message" placeholder="メッセージを入力" required />
+            <button type="submit">送信</button>
+        </form>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
