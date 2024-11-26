@@ -1,25 +1,18 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>チャット画面</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="chat-container">
-        <div class="chat-header">
-            <h1>Chat App</h1>
-        </div>
-        <div id="chatBox" class="chat-messages">
-            <!-- メッセージがここに表示されます -->
-        </div>
-        <div class="chat-input">
-            <form id="chatForm">
-                <input type="text" id="message" placeholder="メッセージを入力" autocomplete="off" />
-                <button type="submit">送信</button>
-            </form>
-        </div>
+        <div id="chatBox"></div>
+        <form id="chatForm" class="chat-form">
+            <input type="text" id="message" placeholder="メッセージを入力..." autocomplete="off">
+            <button type="submit">送信</button>
+        </form>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
