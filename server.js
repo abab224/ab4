@@ -7,41 +7,63 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// 全ユーザーの接続情報を管理
+const activeRooms = {};
+
 app.use(express.static(path.join(__dirname, "public")));
 
-const users = {}; // パスワードごとにユーザーを管理
-
 io.on("connection", (socket) => {
+    console.log("新しいユーザーが接続しました");
+
     socket.on("joinRoom", ({ username, password }) => {
-        if (!users[password]) {
-            users[password] = [];
+        if (!username || !password) {
+            socket.emit("joinError", "ユーザー名とパスワードを入力してください。");
+            return;
         }
 
-        if (users[password].includes(username)) {
-            socket.emit("joinError", "同じユーザ名は使用できません");
+        // パスワードで部屋を管理
+        if (!activeRooms[password]) {
+            activeRooms[password] = [];
+        }
+
+        // ユーザーを部屋に追加
+        if (activeRooms[password].some((user) => user.username === username)) {
+            socket.emit("joinError", "同じ名前のユーザーがすでに存在します。");
         } else {
-            users[password].push(username);
-            socket.join(password);
+            activeRooms[password].push({ username, socketId: socket.id });
+            socket.join(password); // 部屋に参加
             socket.emit("joinSuccess");
-            io.to(password).emit("message", { username: "システム", message: `${username}さんが参加しました` });
+            console.log(`${username} が部屋 ${password} に参加しました`);
         }
     });
 
     socket.on("chatMessage", ({ username, message }) => {
-        const userRoom = Object.keys(users).find((room) => users[room].includes(username));
+        // ユーザーが属する部屋を確認
+        const userRoom = Object.keys(activeRooms).find((room) =>
+            activeRooms[room].some((user) => user.socketId === socket.id)
+        );
+
         if (userRoom) {
             io.to(userRoom).emit("message", { username, message });
         }
     });
 
     socket.on("disconnect", () => {
-        for (const room in users) {
-            users[room] = users[room].filter((name) => name !== username);
-            if (users[room].length === 0) delete users[room];
+        // ユーザーを部屋から削除
+        for (const room in activeRooms) {
+            activeRooms[room] = activeRooms[room].filter(
+                (user) => user.socketId !== socket.id
+            );
+
+            if (activeRooms[room].length === 0) {
+                delete activeRooms[room]; // 部屋が空なら削除
+            }
         }
+        console.log("ユーザーが切断されました");
     });
 });
 
-server.listen(3000, () => {
-    console.log("Server running on port 3000");
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`サーバーがポート ${PORT} で起動しました`);
 });
