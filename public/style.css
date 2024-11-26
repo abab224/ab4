@@ -1,0 +1,120 @@
+/* 基本設定 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #e5ddd5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* チャット全体のコンテナ */
+.chat-container {
+    width: 400px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+/* 部屋情報のヘッダー */
+.room-info {
+    background-color: #075e54;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.room-info h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* メッセージ表示エリア */
+.chat-box {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #e5ddd5;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-box::-webkit-scrollbar {
+    display: none;
+}
+
+/* 各メッセージ */
+.message {
+    max-width: 70%;
+    margin: 5px 0;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+/* 送信メッセージ（自分） */
+.message.me {
+    align-self: flex-end;
+    background-color: #dcf8c6;
+    border-bottom-right-radius: 0;
+}
+
+/* 受信メッセージ（他人） */
+.message.you {
+    align-self: flex-start;
+    background-color: white;
+    border-bottom-left-radius: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* システム通知 */
+.message.system {
+    align-self: center;
+    font-size: 12px;
+    color: #555;
+}
+
+/* メッセージ入力欄 */
+.message-input-container {
+    display: flex;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-top: 1px solid #ddd;
+}
+
+.message-input-container input {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+    margin-right: 10px;
+}
+
+.message-input-container input:focus {
+    border-color: #075e54;
+}
+
+.message-input-container button {
+    background-color: #075e54;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.message-input-container button:hover {
+    background-color: #0a6d64;
+}

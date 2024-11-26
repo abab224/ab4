@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- 部屋名表示 -->
+        <div class="room-info">
+            <h2>Room: <span id="room-name"></span></h2>
+        </div>
+        <!-- メッセージ表示エリア -->
+        <div id="chat-box" class="chat-box"></div>
+        <!-- メッセージ入力エリア -->
+        <div class="message-input-container">
+            <input type="text" id="message" placeholder="Write a message..." required>
+            <button id="send-btn">▶</button>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
