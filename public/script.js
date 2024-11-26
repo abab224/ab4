@@ -43,17 +43,34 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const message = document.getElementById("message").value.trim();
             if (message) {
+                addMessage("self", message); // 自分のメッセージを追加
                 socket.emit("chatMessage", { username, message });
                 document.getElementById("message").value = "";
             }
         });
 
         socket.on("message", (data) => {
+            const sender = data.username === username ? "self" : "other";
+            addMessage(sender, data.message, data.username);
+        });
+
+        function addMessage(sender, message, senderName = "") {
             const chatBox = document.getElementById("chatBox");
             const newMessage = document.createElement("div");
-            newMessage.textContent = `${data.username}: ${data.message}`;
+            newMessage.classList.add(sender === "self" ? "message-self" : "message-other");
+
+            // ユーザー名を表示する（必要であれば）
+            if (sender === "other" && senderName) {
+                const nameTag = document.createElement("div");
+                nameTag.style.fontSize = "12px";
+                nameTag.style.color = "#666";
+                nameTag.textContent = senderName;
+                chatBox.appendChild(nameTag);
+            }
+
+            newMessage.textContent = message;
             chatBox.appendChild(newMessage);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
+            chatBox.scrollTop = chatBox.scrollHeight; // チャットボックスをスクロール
+        }
     }
 });
