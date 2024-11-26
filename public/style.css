@@ -1,57 +1,105 @@
+/* 全体のスタイル */
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #e5ddd5; /* 背景色をLINEに似せる */
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f5f5f5;
 }
 
-.login-container, .chat-container {
+.chat-container {
     width: 100%;
-    max-width: 400px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    height: 90vh;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
-.login-container h1, .chat-container h1 {
+/* ヘッダー */
+.chat-header {
+    background-color: #00b900; /* LINEのヘッダーの緑色 */
+    color: white;
     text-align: center;
-    margin-bottom: 20px;
-}
-
-input {
-    width: calc(100% - 20px);
-    margin: 10px 0;
     padding: 10px;
-    font-size: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
 }
 
-button {
+/* メッセージ表示エリア */
+.chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 自分のメッセージ */
+.message-self {
+    align-self: flex-end;
+    background-color: #dcf8c6; /* 緑色に近い背景 */
+    color: black;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-bottom-right-radius: 0px;
+    max-width: 60%;
+    word-wrap: break-word;
+}
+
+/* 相手のメッセージ */
+.message-other {
+    align-self: flex-start;
+    background-color: #ffffff;
+    color: black;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-bottom-left-radius: 0px;
+    max-width: 60%;
+    word-wrap: break-word;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 入力エリア */
+.chat-input {
+    padding: 10px;
+    background-color: #f1f1f1;
+    display: flex;
+}
+
+.chat-input form {
+    display: flex;
     width: 100%;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex: 1;
     padding: 10px;
-    font-size: 1rem;
-    background-color: #007bff;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    font-size: 14px;
+    background-color: #00b900;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 20px;
     cursor: pointer;
+    outline: none;
 }
 
-button:hover {
-    background-color: #0056b3;
-}
-
-.chat-box {
-    height: 300px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
-    padding: 10px;
-    background: #fff;
+.chat-input button:hover {
+    background-color: #019801;
 }
