@@ -1,51 +1,45 @@
-if (window.location.pathname === "/chat.html") {
+const socket = io();
+
+document.addEventListener("DOMContentLoaded", () => {
     const username = localStorage.getItem("username");
     const password = localStorage.getItem("password");
 
     if (!username || !password) {
-        alert("ログインが必要です");
+        alert("Please login first!");
         window.location.href = "/";
         return;
     }
 
-    const socket = io();
+    const chatBox = document.getElementById("chat-box");
+    const messageInput = document.getElementById("message");
+    const sendBtn = document.getElementById("send-btn");
 
-    // パスワードを送信して接続確認
-    socket.emit("joinRoom", { username, password });
+    // サーバーに参加を通知
+    socket.emit("join", { username, password });
 
-    socket.on("joinSuccess", () => {
-        console.log("チャットに参加しました");
-    });
-
-    socket.on("joinError", (error) => {
-        alert(error);
-        window.location.href = "/";
-    });
-
-    // メッセージ送信機能
-    document.getElementById("chatForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const message = document.getElementById("message").value.trim();
+    // メッセージを送信
+    sendBtn.addEventListener("click", () => {
+        const message = messageInput.value.trim();
         if (message) {
-            socket.emit("chatMessage", { username, message });
-            document.getElementById("message").value = "";
+            socket.emit("message", { username, message });
+            displayMessage("me", message);
+            messageInput.value = "";
         }
     });
 
-    // メッセージの受信機能
+    // 他のユーザーからのメッセージを受信
     socket.on("message", (data) => {
-        const chatBox = document.getElementById("chatBox");
-        const newMessage = document.createElement("div");
-
-        newMessage.classList.add("message");
-        if (data.username === username) {
-            newMessage.classList.add("message-self");
-        } else {
-            newMessage.classList.add("message-other");
+        if (data.username !== username) {
+            displayMessage("you", `${data.username}: ${data.message}`);
         }
-
-        newMessage.innerHTML = `<strong>${data.username}</strong><br>${data.message}`;
-        chatBox.appendChild(newMessage);
-        chatBox.scrollTop = chatBox.scrollHeight; // 最新メッセージにスクロール
     });
-}
+
+    // メッセージを表示する関数
+    function displayMessage(type, text) {
+        const messageElem = document.createElement("div");
+        messageElem.classList.add("message", type);
+        messageElem.textContent = text;
+        chatBox.appendChild(messageElem);
+        chatBox.scrollTop = chatBox.scrollHeight; // 最新のメッセージにスクロール
+    }
+});

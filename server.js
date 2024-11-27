@@ -1,69 +1,55 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// 全ユーザーの接続情報を管理
-const activeRooms = {};
+// パスワードごとのユーザー情報を保存
+const rooms = {};
 
-app.use(express.static(path.join(__dirname, "public")));
+// 静的ファイルを提供
+app.use(express.static("public"));
 
+// Socket.IOの設定
 io.on("connection", (socket) => {
-    console.log("新しいユーザーが接続しました");
+    console.log("A user connected:", socket.id);
 
-    socket.on("joinRoom", ({ username, password }) => {
-        if (!username || !password) {
-            socket.emit("joinError", "ユーザー名とパスワードを入力してください。");
-            return;
+    // ユーザーが部屋に参加
+    socket.on("join", ({ username, password }) => {
+        if (!rooms[password]) {
+            rooms[password] = [];
         }
 
-        // パスワードで部屋を管理
-        if (!activeRooms[password]) {
-            activeRooms[password] = [];
-        }
+        rooms[password].push({ username, socketId: socket.id });
+        socket.join(password);
 
-        // ユーザーを部屋に追加
-        if (activeRooms[password].some((user) => user.username === username)) {
-            socket.emit("joinError", "同じ名前のユーザーがすでに存在します。");
-        } else {
-            activeRooms[password].push({ username, socketId: socket.id });
-            socket.join(password); // 部屋に参加
-            socket.emit("joinSuccess");
-            console.log(`${username} が部屋 ${password} に参加しました`);
-        }
+        // 部屋の全員に通知
+        io.to(password).emit("system", `${username} has joined the room.`);
+        console.log(`${username} joined room: ${password}`);
     });
 
-    socket.on("chatMessage", ({ username, message }) => {
-        // ユーザーが属する部屋を確認
-        const userRoom = Object.keys(activeRooms).find((room) =>
-            activeRooms[room].some((user) => user.socketId === socket.id)
-        );
-
-        if (userRoom) {
-            io.to(userRoom).emit("message", { username, message });
-        }
+    // メッセージを受信し、部屋の全員に送信
+    socket.on("message", ({ username, message, password }) => {
+        io.to(password).emit("message", { username, message });
+        console.log(`[Room: ${password}] ${username}: ${message}`);
     });
 
+    // ユーザーが切断
     socket.on("disconnect", () => {
-        // ユーザーを部屋から削除
-        for (const room in activeRooms) {
-            activeRooms[room] = activeRooms[room].filter(
-                (user) => user.socketId !== socket.id
-            );
-
-            if (activeRooms[room].length === 0) {
-                delete activeRooms[room]; // 部屋が空なら削除
+        for (const [room, userList] of Object.entries(rooms)) {
+            const userIndex = userList.findIndex((user) => user.socketId === socket.id);
+            if (userIndex !== -1) {
+                const [user] = rooms[room].splice(userIndex, 1);
+                io.to(room).emit("system", `${user.username} has left the room.`);
+                console.log(`${user.username} left room: ${room}`);
+                break;
             }
         }
-        console.log("ユーザーが切断されました");
     });
 });
 
+// サーバーを起動
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`サーバーがポート ${PORT} で起動しました`);
-});
+server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
